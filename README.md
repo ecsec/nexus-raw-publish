@@ -5,7 +5,7 @@ It has been build to upload documentation to a Nexus repository of type raw, but
 The plugin is compatible with Sonatype Nexus version 3.
 
 This is a very early version of the plugin.
-In case you miss any features, feel free to open an issue or a pull request. 
+In case you miss any features, feel free to open an issue or a pull request.
 
 
 # Installation
@@ -15,9 +15,9 @@ To use it, add the following entry to your `settings.gradle.kts`:
 ```kotlin
 pluginManagement {
     repositories {
-		maven {
-			url = uri("https://mvn.ecsec.de/repository/openecard-public/")
-		}
+        maven {
+            url = uri("https://mvn.ecsec.de/repository/openecard-public/")
+        }
     }
 }
 ```
@@ -25,7 +25,7 @@ pluginManagement {
 The plugin can then be loaded in the `build.gradle.kts` file as follows:
 ```kotlin
 plugins {
-	id("de.ecsec.nexus-raw-publish") version "0.9.1"
+    id("de.ecsec.nexus-raw-publish") version "0.9.1"
 }
 ```
 
@@ -34,7 +34,7 @@ plugins {
 The plugin can be configured using the `publishNexusRaw` extension and identical properties in the `PublishNexusRawTask`.
 
 The following properties are available:
-- `nexusUrl` (String): The base URL of the Nexus installation. Typically something like `https://mvn.example.com/`. 
+- `nexusUrl` (String): The base URL of the Nexus installation. Typically something like `https://mvn.example.com/`.
 - `repoName` (String): The name of the repository.
 - `repoFolder` (String): The folder in the repository to upload to.
 - `username` (String): The username to authenticate with.
@@ -54,27 +54,27 @@ As it can be seen in the task definitions, the publish jobs depend on the [ascii
 import de.ecsec.PublishNexusRawTask
 
 publishNexusRaw {
-	nexusUrl = "https://mvn.example.com/"
-	repoName = "docs-repo"
-	username = System.getenv("MVN_EXAMPLE_USERNAME") ?: project.findProperty("mvnUsernameExample") as String?
-	password = System.getenv("MVN_EXAMPLE_PASSWORD") ?: project.findProperty("mvnPasswordExample") as String?
-	inputDir = layout.buildDirectory.dir("docs/asciidoc")
+    nexusUrl = "https://mvn.example.com/"
+    repoName = "docs-repo"
+    username = System.getenv("MVN_EXAMPLE_USERNAME") ?: project.findProperty("mvnUsernameExample") as String?
+    password = System.getenv("MVN_EXAMPLE_PASSWORD") ?: project.findProperty("mvnPasswordExample") as String?
+    inputDir = layout.buildDirectory.dir("docs/asciidoc")
 }
 
 tasks.register("publishNexusRawVersion", PublishNexusRawTask::class) {
-	group = "publishing"
-	repoFolder = "mysoftware/doc/${project.version}"
-	dependsOn("asciidoctor")
+    group = "publishing"
+    repoFolder = "mysoftware/doc/${project.version}"
+    dependsOn("asciidoctor")
 }
 tasks.register("publishNexusRawLatest", PublishNexusRawTask::class) {
-	group = "publishing"
-	repoFolder = "mysoftware/doc/latest"
-	dependsOn("asciidoctor")
+    group = "publishing"
+    repoFolder = "mysoftware/doc/latest"
+    dependsOn("asciidoctor")
 }
 tasks.register("publishNexusRawDev", PublishNexusRawTask::class) {
-	group = "publishing"
-	repoFolder = "mysoftware/doc/dev"
-	dependsOn("asciidoctor")
+    group = "publishing"
+    repoFolder = "mysoftware/doc/dev"
+    dependsOn("asciidoctor")
 }
 ```
 
