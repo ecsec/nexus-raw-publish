@@ -10,13 +10,13 @@ In case you miss any features, feel free to open an issue or a pull request.
 
 # Installation
 
-The plugin is availabe on the ecsec Nexus Repository.
+The plugin is availabe on the Open eCard Nexus Repository.
 To use it, add the following entry to your `settings.gradle.kts`:
 ```kotlin
 pluginManagement {
     repositories {
 		maven {
-			url = uri("https://mvn.ecsec.de/repository/public/")
+			url = uri("https://mvn.ecsec.de/repository/openecard-public/")
 		}
     }
 }
@@ -25,7 +25,7 @@ pluginManagement {
 The plugin can then be loaded in the `build.gradle.kts` file as follows:
 ```kotlin
 plugins {
-	id("de.ecsec.nexus-raw-publish") version "0.9.0"
+	id("de.ecsec.nexus-raw-publish") version "0.9.1"
 }
 ```
 
