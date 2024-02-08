@@ -1,13 +1,31 @@
+/****************************************************************************
+ * Copyright (C) 2024 ecsec GmbH
+ * Contact: ecsec GmbH (info@ecsec.de)
+ *
+ * This file is part of the nexus-raw-publish Gradle plugin.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ ***************************************************************************/
+
 package de.ecsec
 
 import com.github.kittinunf.fuel.core.FileDataPart
-import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.core.isSuccessful
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.httpPut
-import com.github.kittinunf.fuel.httpUpload
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
