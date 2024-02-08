@@ -4,6 +4,9 @@ plugins {
 
     // Apply the Kotlin JVM plugin to add support for Kotlin.
     alias(libs.plugins.jvm)
+
+    // coverage report
+    jacoco
 }
 
 java {
