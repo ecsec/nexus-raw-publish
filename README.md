@@ -47,6 +47,9 @@ The [example section](#Example) below provides more details on how the plugin co
 
 # Example
 
+The following example uses custom tasks to publish the same artifact under different paths.
+As it can be seen in the task definitions, the publish jobs depend on the [asciidoctor](https://asciidoctor.org/docs/asciidoctor-gradle-plugin/) task to build the to be uploaded files.
+
 ```kotlin
 import de.ecsec.PublishNexusRawTask
 
