@@ -16,7 +16,7 @@ To use it, add the following entry to your `settings.gradle.kts`:
 pluginManagement {
     repositories {
 		maven {
-			url = uri("https://mvn.ecsec.de/repository/public")
+			url = uri("https://mvn.ecsec.de/repository/public/")
 		}
     }
 }
