@@ -1,6 +1,6 @@
 plugins {
     // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
-    id("com.gradle.plugin-publish") version "1.2.1"
+    alias(libs.plugins.publish)
 
     // Apply the Kotlin JVM plugin to add support for Kotlin.
     alias(libs.plugins.jvm)
@@ -22,8 +22,7 @@ repositories {
 }
 
 dependencies {
-    val fuelVersion = "2.3.1"
-    implementation("com.github.kittinunf.fuel:fuel:${fuelVersion}")
+    implementation(libs.fuel)
 }
 
 testing {
@@ -31,24 +30,24 @@ testing {
         // Configure the built-in test suite
         val test by getting(JvmTestSuite::class) {
             // Use Kotlin Test framework
-            useKotlinTest("1.9.20")
+            useKotlinTest(libs.versions.kotlin)
         }
 
         // Create a new test suite
         val functionalTest by registering(JvmTestSuite::class) {
             // Use Kotlin Test framework
-            useKotlinTest("1.9.20")
+            useKotlinTest(libs.versions.kotlin)
 
             dependencies {
                 // functionalTest test suite depends on the production code in tests
                 implementation(project())
-                implementation("org.wiremock:wiremock:3.3.1")
+                implementation(libs.wiremock)
             }
 
             targets {
                 all {
                     // This test suite should run after the built-in test suite has run its tests
-                    testTask.configure { shouldRunAfter(test) } 
+                    testTask.configure { shouldRunAfter(test) }
                 }
             }
         }
