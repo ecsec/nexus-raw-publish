@@ -39,6 +39,7 @@ import java.time.Instant
 import kotlin.random.Random
 
 val extName = "publishNexusRaw"
+val defaultDeleteTimeout = 5 * 60 * 1000L
 
 /**
  * Plugin that publishes data to a nexus raw repository.
@@ -55,6 +56,7 @@ class PublishNexusRawPlugin: Plugin<Project> {
 }
 
 interface PublishNexusRawExtension {
+    val deletionTimeout: Property<Long>
     val nexusUrl: Property<String>
     val repoName: Property<String>
     val repoFolder: Property<String>
@@ -68,8 +70,8 @@ interface PublishNexusRawExtension {
 
 abstract class PublishNexusRawTask : DefaultTask() {
 
-    private val waitTimeout = 30 * 1000L
-
+    @get:Input
+    abstract val deletionTimeout: Property<Long>
     @get:Input
     abstract val nexusUrl: Property<String>
     @get:Input
@@ -87,6 +89,7 @@ abstract class PublishNexusRawTask : DefaultTask() {
     init {
         // map extension properties to task properties
         project.extensions.configure<PublishNexusRawExtension>(extName) {
+            this.deletionTimeout.set(it.deletionTimeout.orElse(defaultDeleteTimeout))
             this.nexusUrl.set(it.nexusUrl)
             this.repoName.set(it.repoName)
             this.repoFolder.set(it.repoFolder)
@@ -129,7 +132,7 @@ abstract class PublishNexusRawTask : DefaultTask() {
         "$baseUrl/service/extdirect".httpPost()
             .header("Content-Type" to "application/json")
             .authentication().basic(username.get(), password.get())
-            .body("""{"action": "coreui_Component", "method": "deleteFolder", "data": ["${rawRepoFolder}", "${rawRepoName}"], "type": "rpc", "tid": $tid}""")
+            .body("""{"action": "coreui_Component", "method": "deleteFolder", "data": ["$rawRepoFolder", "$rawRepoName"], "type": "rpc", "tid": $tid}""")
             .responseString().also { (_, response, result) ->
                 if (response.isSuccessful) {
                     logger.debug("Remote content deletion command sent successfully.")
@@ -161,7 +164,7 @@ abstract class PublishNexusRawTask : DefaultTask() {
             }
 
             // check timeout
-            if (Instant.now().isAfter(startTime.plusMillis(waitTimeout))) {
+            if (Instant.now().isAfter(startTime.plusMillis(deletionTimeout.get()))) {
                 val msg = "Timeout waiting for remote content deletion of '$rawRepoName:$rawRepoFolder'."
                 logger.error(msg)
                 throw RuntimeException(msg)
