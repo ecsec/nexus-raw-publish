@@ -2,12 +2,24 @@
 # https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
 
 [versions]
-kotlin = "2.0.0"
+kotlin = "2.1.10"
+kover = "0.9.1"
+ktor = "3.0.+"
+kx-co = "1.10.+"
 
 [libraries]
-fuel = { module = "com.github.kittinunf.fuel:fuel", version = "2.3.1" }
-wiremock = { module = "org.wiremock:wiremock", version = "3.3.1" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
+ktor-client-content = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kx-co" }
+mockito = { group = "org.mockito", name = "mockito-core", version = "5.+" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version = "5.4.+" }
+wiremock = { module = "org.wiremock:wiremock", version = "3.10.0" }
 
 [plugins]
 jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 publish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
+kotlinKover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }

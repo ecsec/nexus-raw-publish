@@ -40,7 +40,8 @@ class PublishNexusRawPluginFunctionalTest {
     private val buildFile by lazy { projectDir.resolve("build.gradle") }
     private val settingsFile by lazy { projectDir.resolve("settings.gradle") }
 
-    @Test fun pushToProtectedServer(wmRuntimeInfo: WireMockRuntimeInfo) {
+    @Test
+    fun pushToProtectedServer(wmRuntimeInfo: WireMockRuntimeInfo) {
         val repoUrl = wmRuntimeInfo.httpBaseUrl
         val repoName = "test-repo"
         val repoFolder = "test-folder"

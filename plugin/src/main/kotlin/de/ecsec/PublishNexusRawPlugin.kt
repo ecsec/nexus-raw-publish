@@ -20,12 +20,11 @@
 
 package de.ecsec
 
-import com.github.kittinunf.fuel.core.FileDataPart
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.core.isSuccessful
-import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.fuel.httpPost
-import com.github.kittinunf.fuel.httpPut
+import io.ktor.client.*
+import io.ktor.client.engine.java.*
+import io.ktor.client.plugins.*
+import io.ktor.client.request.*
+import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -34,12 +33,9 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
-import java.io.File
-import java.time.Instant
-import kotlin.random.Random
 
-val extName = "publishNexusRaw"
-val defaultDeleteTimeout = 5 * 60 * 1000L
+const val extName = "publishNexusRaw"
+
 
 /**
  * Plugin that publishes data to a nexus raw repository.
@@ -101,93 +97,30 @@ abstract class PublishNexusRawTask : DefaultTask() {
     }
 
     @TaskAction
-    fun doPublish() {
-        val baseUrl = nexusUrl.get().let {
-            // make sure the base url does not end with /
-            if (it.endsWith("/")) it.dropLast(1) else it
-        }
+    fun doPublish(): Unit = runBlocking {
+        val baseUrl = nexusUrl.get()
         val rawRepoName = repoName.get()
-        val rawRepoFolder = repoFolder.get().let {
-            // make sure the folder name does not start with /
-            if (it.startsWith("/")) it.drop(1) else it
-        }
+        val rawRepoFolder = repoFolder.get().correctPath()
 
-        deleteRemoteContent(baseUrl, rawRepoName, rawRepoFolder)
-        waitForContentDeletion(baseUrl, rawRepoName, rawRepoFolder)
+        HttpClient(Java) {
+            // configure client
+            defaultRequest {
+                url(baseUrl)
+                basicAuth(username.get(), password.get())
+            }
+        }.use { client ->
+            val api = NexusApi(client, logger)
+            api.deleteRemoteContent(rawRepoName, rawRepoFolder)
 
-        // upload each file
-        logger.info("Uploading files to Nexus Raw Repo.")
-        inputDir.asFileTree
-            .visit {
+            // upload each file
+            logger.info("Uploading files to Nexus Raw Repo.")
+            inputDir.asFileTree.forEach {
                 if (!it.isDirectory) {
-                    val relPath = it.relativePath.pathString
-                    uploadFile(baseUrl, rawRepoName, rawRepoFolder, relPath, it.file)
+                    val relPath = it.toRelativeString(inputDir.asFile.get())
+                    api.uploadFile(rawRepoName, "$rawRepoFolder/$relPath", it)
                 }
-            }
-    }
-
-    fun deleteRemoteContent(baseUrl: String, rawRepoName: String, rawRepoFolder: String) {
-        // expected: 200 -> {"tid":10,"action":"coreui_Component","method":"deleteFolder","result":{"success":true,"data":null},"type":"rpc"}
-        val tid = Random.nextInt()
-        "$baseUrl/service/extdirect".httpPost()
-            .header("Content-Type" to "application/json")
-            .authentication().basic(username.get(), password.get())
-            .body("""{"action": "coreui_Component", "method": "deleteFolder", "data": ["$rawRepoFolder", "$rawRepoName"], "type": "rpc", "tid": $tid}""")
-            .responseString().also { (_, response, result) ->
-                if (response.isSuccessful) {
-                    logger.debug("Remote content deletion command sent successfully.")
-                    // TODO: check content of response
-                } else {
-                    logger.error("Failed to delete remote content: ${result.get()}")
-                    throw RuntimeException("Failed to delete remote content: ${result.get()}")
-                }
-            }
-    }
-
-    fun waitForContentDeletion(baseUrl: String, rawRepoName: String, rawRepoFolder: String) {
-        var contentNotFound = false
-        var startTime = Instant.now()
-
-        while (!contentNotFound) {
-            val (_, response, _) = "$baseUrl/service/rest/repository/browse/$rawRepoName/$rawRepoFolder/".httpGet()
-                .authentication().basic(username.get(), password.get())
-                .response()
-            if (response.statusCode == 404) {
-                logger.info("Remote content deleted successfully.")
-                contentNotFound = true
-            } else if (response.isSuccessful) {
-                Thread.sleep(1000)
-            } else {
-                val msg = "Check for remote content deletion of '$rawRepoName:$rawRepoFolder' failed with status code ${response.statusCode}."
-                logger.error(msg)
-                throw RuntimeException(msg)
-            }
-
-            // check timeout
-            if (Instant.now().isAfter(startTime.plusMillis(deletionTimeout.get()))) {
-                val msg = "Timeout waiting for remote content deletion of '$rawRepoName:$rawRepoFolder'."
-                logger.error(msg)
-                throw RuntimeException(msg)
             }
         }
-    }
-
-    fun uploadFile(baseUrl: String, rawRepoName: String, rawRepoFolder: String, relPath: String, file: File) {
-        logger.debug("Uploading file '$relPath'.")
-
-        "$baseUrl/repository/$rawRepoName/$rawRepoFolder/$relPath".httpPut()
-            .authentication().basic(username.get(), password.get())
-            .header("Content-Type", FileDataPart.guessContentType(file))
-            .body(file)
-            .responseString().also { (_, response, _) ->
-                if (response.isSuccessful) {
-                    logger.debug("File '$relPath' uploaded successfully.")
-                } else {
-                    val msg = "Failed to upload file '$relPath'."
-                    logger.error(msg)
-                    throw RuntimeException(msg)
-                }
-            }
     }
 
 }

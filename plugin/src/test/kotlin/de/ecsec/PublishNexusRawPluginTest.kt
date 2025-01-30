@@ -26,7 +26,8 @@ import kotlin.test.assertNotNull
 
 
 class PublishNexusRawPluginTest {
-    @Test fun `plugin registers task`() {
+    @Test
+    fun `plugin registers task`() {
         // Create a test project and apply the plugin
         val project = ProjectBuilder.builder().build()
         project.plugins.apply("de.ecsec.nexus-raw-publish")
