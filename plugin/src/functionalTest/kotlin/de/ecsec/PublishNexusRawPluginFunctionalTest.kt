@@ -155,7 +155,7 @@ class PublishNexusRawPluginFunctionalTest {
                 .withMultipartRequestBody(
                     aMultipart()
                         .withHeader("Content-Disposition", containing("name=raw.directory"))
-                        .withBody(equalTo("/$repoFolder/index.html"))
+                        .withBody(equalTo("/$repoFolder"))
                 )
                 .withMultipartRequestBody(
                     aMultipart()
@@ -181,7 +181,7 @@ class PublishNexusRawPluginFunctionalTest {
                 .withMultipartRequestBody(
                     aMultipart()
                         .withHeader("Content-Disposition", containing("name=raw.directory"))
-                        .withBody(equalTo("/$repoFolder/assets/style.css"))
+                        .withBody(equalTo("/$repoFolder/assets"))
                 )
                 .withMultipartRequestBody(
                     aMultipart()

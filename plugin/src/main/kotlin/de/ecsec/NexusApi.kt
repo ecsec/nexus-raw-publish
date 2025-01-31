@@ -31,7 +31,7 @@ class NexusApi(client: HttpClient, val logger: Logger, val deletionTimeout: Long
     suspend fun deleteRemoteContent(rawRepoName: String, rawRepoFolder: String) {
         val assets = searchAssets(rawRepoName, rawRepoFolder)
         assets.forEach {
-            println("Deleting asset ${it.path}")
+            logger.info("Deleting asset ${it.path}")
             deleteAsset(it.id)
         }
 
@@ -52,7 +52,7 @@ class NexusApi(client: HttpClient, val logger: Logger, val deletionTimeout: Long
         do {
             val assets = searchAssets(rawRepoName, rawRepoFolder)
             if (assets.isNotEmpty()) {
-                println("Waiting for asset deletion.")
+                logger.debug("Waiting for asset deletion.")
                 delay(1000)
             }
 
@@ -87,13 +87,13 @@ class NexusApi(client: HttpClient, val logger: Logger, val deletionTimeout: Long
             continuationToken = result.continuationToken
         } while (continuationToken != null)
 
-        println("Found ${assets.size} assets.")
+        logger.debug("Found ${assets.size} assets.")
         return assets
     }
 
     suspend fun uploadFile(rawRepoName: String, path: String, file: File) {
-        logger.debug("Uploading file '$path'.")
-        println("Uploading file '$path'.")
+        val path = path.correctPath()
+        logger.info("Uploading file '$path/${file.name}'.")
 
         val response = client.submitFormWithBinaryData(
             url = "service/rest/v1/components",

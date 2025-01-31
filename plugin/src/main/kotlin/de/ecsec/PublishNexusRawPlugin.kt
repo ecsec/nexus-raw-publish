@@ -116,7 +116,7 @@ abstract class PublishNexusRawTask : DefaultTask() {
             logger.info("Uploading files to Nexus Raw Repo.")
             inputDir.asFileTree.forEach {
                 if (!it.isDirectory) {
-                    val relPath = it.toRelativeString(inputDir.asFile.get())
+                    val relPath = it.parentFile.toRelativeString(inputDir.asFile.get())
                     api.uploadFile(rawRepoName, "$rawRepoFolder/$relPath", it)
                 }
             }
